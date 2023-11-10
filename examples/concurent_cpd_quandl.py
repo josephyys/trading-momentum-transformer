@@ -8,20 +8,21 @@ from settings.default import (
     CPD_DEFAULT_LBW,
 )
 
-N_WORKERS = len(QUANDL_TICKERS)
-
+# Set this to the number of tickers you want to process
+N_FIRST_TICKERS = 1  # For example, process the first 5 tickers only
+N_WORKERS = N_FIRST_TICKERS  # Adjust the number of workers accordingly
 
 def main(lookback_window_length: int):
     if not os.path.exists(CPD_QUANDL_OUTPUT_FOLDER(lookback_window_length)):
         os.mkdir(CPD_QUANDL_OUTPUT_FOLDER(lookback_window_length))
 
+    # Adjust all_processes to only include the first N_FIRST_TICKERS
     all_processes = [
         f'python -m examples.cpd_quandl "{ticker}" "{os.path.join(CPD_QUANDL_OUTPUT_FOLDER(lookback_window_length), ticker + ".csv")}" "1990-01-01" "2021-12-31" "{lookback_window_length}"'
-        for ticker in QUANDL_TICKERS
+        for ticker in QUANDL_TICKERS[:N_FIRST_TICKERS]  # Slicing the ticker list
     ]
     process_pool = multiprocessing.Pool(processes=N_WORKERS)
     process_pool.map(os.system, all_processes)
-
 
 if __name__ == "__main__":
 
